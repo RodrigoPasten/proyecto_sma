@@ -31,7 +31,7 @@ async def crear_reporte(reporte: Report):
     return reporte
 
 
-@app.patch("/reportes/{reporte_id}")
+@app.delete("/reportes/{reporte_id}")
 async def desactivar_reporte(reporte_id: int):
     reporte = next((r for r in reportes if r.id == reporte_id), None)
     if reporte is None:
