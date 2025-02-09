@@ -29,7 +29,6 @@ router = APIRouter()
 
 # CRUD REPORTES
 
-
 @app.get("/reportes/{reporte_id}", response_model=Reportes, tags=["Reportes"])
 async def obtener_reporte(reporte_id: int):
     reporte = next((r for r in reportes if r.id == reporte_id), None)
