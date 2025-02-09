@@ -1,16 +1,27 @@
 from fastapi import FastAPI, HTTPException, status, APIRouter
+from contextlib import asynccontextmanager
 from models import (
-    reportes,
     medidas,
     usuarios,
     organismos,
-    indicadores,
-    Reportes,
     Medidas,
     Usuarios,
     Organismos,
-    Indicadores,
+    create_db_and_tables,
+    create_organismos,
+    create_usuarios,
+    create_medidas,
+    create_indicadores,
+    create_reportes
 )
+
+""" @asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the ML model
+    create_db_and_tables
+    yield
+    # Clean up the ML models and release the resources
+    # create_db_and_tables.clear() """
 
 app = FastAPI(
     title="Sistema de Monitoreo PPDA CQP",
@@ -23,13 +34,23 @@ app = FastAPI(
         "name": "Superintendencia del Medio Ambiente",
         "email": "grupo5@talentofuturo.cl",
     },
+    #lifespan=lifespan
 )
 
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    create_organismos()
+    create_usuarios(),
+    create_medidas(),
+    create_indicadores(),
+    create_reportes()
+    
 router = APIRouter()
 
 # CRUD REPORTES
 
-@app.get("/reportes/{reporte_id}", response_model=Reportes, tags=["Reportes"])
+""" @app.get("/reportes/{reporte_id}", response_model=Reportes, tags=["Reportes"])
 async def obtener_reporte(reporte_id: int):
     reporte = next((r for r in reportes if r.id == reporte_id), None)
 
@@ -70,7 +91,7 @@ async def desactivar_reporte(reporte_id: int):
 
     reporte.activo = False
 
-    return f"Se ha eliminado el reporte {reporte_id}"
+    return f"Se ha eliminado el reporte {reporte_id}" """
 
 
 # CRUD MEDIDAS
@@ -217,7 +238,7 @@ async def desactivar_organismo(organismo_id: int):
 # CRUD INDICADORES
 
 
-@app.get("/indicadores/{indicador_id}", response_model=Indicadores)
+""" @app.get("/indicadores/{indicador_id}", response_model=Indicadores)
 async def obtener_indicador(indicador_id: int):
     indicador = next((r for r in indicadores if r.id == indicador_id), None)
 
@@ -260,4 +281,4 @@ async def desactivar_indicador(indicador_id: int):
 
     indicador.activo = False
 
-    return f"Se ha eliminado el indicador {indicador_id}"
+    return f"Se ha eliminado el indicador {indicador_id}" """

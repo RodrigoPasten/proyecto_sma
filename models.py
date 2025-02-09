@@ -1,73 +1,223 @@
 from pydantic import BaseModel
+from typing import Annotated
+from fastapi import Depends
+# SQLMODEL
+from sqlmodel import Field, Session, SQLModel, create_engine, select
 
+# CREATING MODEL for DB
+class Organismos(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    nombre: str = Field(index=True)
+    email: str = Field(default=None, index=True)
+    sigla: str = Field(default=None, index=True)
+    activo: bool = Field(default=True, index=True)
     
-class Medidas(BaseModel):
-    id: int
-    nombre: str
-    descripcion: str
-    organismo_id: int
-    usuario_id: int
-    activo: bool
-
-class Reportes(BaseModel):
-    id: int
-    fecha: str
-    indicador_id: int
-    organismo_id: int
-    valor: int
-    usuario_id: int
-    activo: bool
-
-class Usuarios(BaseModel):
-    id: int
-    nombre: str
-    email: str
-    password: str
-    organismo_id: int
-    rol: str
-    activo: bool
+class Usuarios(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    nombre: str = Field(index=True)
+    email: str = Field(default=None, index=True)
+    password: str = Field(default=None, index=True)
+    rol: str = Field(default=None, index=True)
+    activo: bool = Field(default=True, index=True)
     
-class Organismos(BaseModel):
-    id: int
-    nombre: str
-    sigla: str
-    activo: bool
+    organismo_id: int | None = Field(default=None, foreign_key="organismos.id")
+    
+class Medidas(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    nombre: str = Field(index=True)
+    descripcion: str = Field(default=None, index=True)
+    activo: bool = Field(default=True, index=True)
+    
+    organismo_id: int = Field(default=None, foreign_key="organismos.id")
+    usuario_id: int = Field(default=None, foreign_key="usuarios.id")
 
-class Indicadores(BaseModel):
-    id: int
-    nombre: str
-    tipo: str
-    formula: str
-    unidad: str
-    medida_id: int
-    activo: bool
+class Indicadores(SQLModel, table= True):
+    id: int | None = Field(default=None, primary_key=True)
+    nombre: str = Field(index=True)
+    tipo: str = Field(default=None, index=True)
+    formula: str = Field(default=None, index=True)
+    unidad: str = Field(default=None, index=True)
+    activo: bool = Field(default=True, index=True)
+    
+    medida_id: int = Field(default=None, foreign_key="medidas.id")
 
-medidas = [
-    Medidas(id=1, nombre="Medida 1", descripcion="Descripción de la Medida 1", organismo_id=1, usuario_id=1, activo=True),
-    Medidas(id=2, nombre="Medida 2", descripcion="Descripción de la Medida 2", organismo_id=2, usuario_id=2, activo=True),
-    Medidas(id=3, nombre="Medida 3", descripcion="Descripción de la Medida 3", organismo_id=1, usuario_id=3, activo=True),
-]
+class Reportes(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    fecha: str = Field(default=None, index=True)
+    valor: int = Field(default=None, index=True)
+    activo: bool = Field(default=True, index=True)
+    
+    indicador_id: int = Field(default=None, foreign_key="indicadores.id")
+    organismo_id: int = Field(default=None, foreign_key="organismos.id")
+    usuario_id: int = Field(default=None, foreign_key="usuarios.id")
 
-reportes = [
-    Reportes(id=1, fecha="2025-02-01", indicador_id=1, organismo_id=1, valor=100, usuario_id=1, activo=True),
-    Reportes(id=2, fecha="2025-02-02", indicador_id=2, organismo_id=2, valor=200, usuario_id=2, activo=True),
-    Reportes(id=3, fecha="2025-02-03", indicador_id=3, organismo_id=3, valor=300, usuario_id=3, activo=True),
-]
+# CREATE ENGINE TO CONNECT TO DB
 
-usuarios = [
-    Usuarios(id=1, nombre="Usuario 1", email="usuario1@example.com", password="password1", organismo_id=1, rol="Admin", activo=True),
-    Usuarios(id=2, nombre="Usuario 2", email="usuario2@example.com", password="password2", organismo_id=2, rol="User", activo=True),
-    Usuarios(id=3, nombre="Usuario 3", email="usuario3@example.com", password="password3", organismo_id=3, rol="User", activo=True),
-]
+database_user = "postgres"
+database_password = "pgadmin"
+database_host = "localhost"  # or the IP address of your PostgreSQL server
+database_port = 5432         # Default PostgreSQL port
+database_name = "db_sma"
 
-organismos = [
-    Organismos(id=1, nombre="Organismo 1", sigla="ORG1", activo=True),
-    Organismos(id=2, nombre="Organismo 2", sigla="ORG2", activo=True),
-    Organismos(id=3, nombre="Organismo 3", sigla="ORG3", activo=True),
-]
+postgres_url = f"postgresql://{database_user}:{database_password}@{database_host}:{database_port}/{database_name}"
+engine = create_engine(postgres_url)
 
-indicadores = [
-    Indicadores(id=1, nombre="Indicador 1", tipo="Proporción", formula="a/b", unidad="%", medida_id=1, activo=True),
-    Indicadores(id=2, nombre="Indicador 2", tipo="Tasa", formula="c*d", unidad="unidades", medida_id=2, activo=True),
-    Indicadores(id=3, nombre="Indicador 3", tipo="Índice", formula="e/f", unidad="índice", medida_id=3, activo=True),
-]
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+    
+def create_organismos():
+    organismo_1 = Organismos(
+        nombre="Ministerio de Salud", 
+        email="contacto@minsalud.cl", 
+        sigla="MINSAL"
+    )
+    organismo_2 = Organismos(
+        nombre="Ministerio de Educación", 
+        email="info@mineduc.cl", 
+        sigla="MINEDUC"
+    )
+    organismo_3 = Organismos(
+        nombre="Ministerio de Economía", 
+        email="economia@mineco.cl", 
+        sigla="MINECO"
+    )
+
+    # Replace `engine` with your actual database engine
+    with Session(engine) as session:
+        session.add(organismo_1)
+        session.add(organismo_2)
+        session.add(organismo_3)
+
+        session.commit()
+
+def create_usuarios():
+    usuario_1 = Usuarios(
+        nombre="Juan Pérez",
+        email="juan.perez@example.com",
+        password="securepassword123",
+        rol="Administrador",
+        organismo_id=1  # Assuming this Organismo exists
+    )
+    usuario_2 = Usuarios(
+        nombre="María González",
+        email="maria.gonzalez@example.com",
+        password="mypassword456",
+        rol="Usuario",
+        organismo_id=2  # Assuming this Organismo exists
+    )
+    usuario_3 = Usuarios(
+        nombre="Carlos López",
+        email="carlos.lopez@example.com",
+        password="password789",
+        rol="Supervisor",
+        organismo_id=1  # Assuming this Organismo exists
+    )
+
+    with Session(engine) as session:
+        session.add(usuario_1)
+        session.add(usuario_2)
+        session.add(usuario_3)
+
+        session.commit()
+
+def create_medidas():
+    medida_1 = Medidas(
+        nombre="Medida 1",
+        descripcion="Primera medida tomada para mejorar los procesos.",
+        organismo_id=1,  # Assuming this Organismo exists
+        usuario_id=1     # Assuming this Usuario exists
+    )
+    medida_2 = Medidas(
+        nombre="Medida 2",
+        descripcion="Medida de contingencia aplicada en 2023.",
+        organismo_id=2,  # Assuming this Organismo exists
+        usuario_id=2     # Assuming this Usuario exists
+    )
+    medida_3 = Medidas(
+        nombre="Medida 3",
+        descripcion="Estrategia de optimización de recursos.",
+        organismo_id=1,  # Assuming this Organismo exists
+        usuario_id=3     # Assuming this Usuario exists
+    )
+
+    with Session(engine) as session:
+        session.add(medida_1)
+        session.add(medida_2)
+        session.add(medida_3)
+
+        session.commit()
+
+def create_indicadores():
+    indicador_1 = Indicadores(
+        nombre="Indicador de Rendimiento",
+        tipo="Porcentaje",
+        formula="(logros / metas) * 100",
+        unidad="%",
+        activo=True,
+        medida_id=1  # Assuming this Medida exists
+    )
+    indicador_2 = Indicadores(
+        nombre="Indicador de Productividad",
+        tipo="Ratio",
+        formula="producción / horas_trabajadas",
+        unidad="unidades/hora",
+        activo=True,
+        medida_id=2  # Assuming this Medida exists
+    )
+    indicador_3 = Indicadores(
+        nombre="Indicador de Eficiencia",
+        tipo="Porcentaje",
+        formula="(resultados / recursos) * 100",
+        unidad="%",
+        activo=False,
+        medida_id=3  # Assuming this Medida exists
+    )
+
+    with Session(engine) as session:
+        session.add(indicador_1)
+        session.add(indicador_2)
+        session.add(indicador_3)
+
+        session.commit()
+
+def create_reportes():
+    reporte_1 = Reportes(
+        fecha="2025-01-15",
+        valor=85,
+        activo=True,
+        indicador_id=1,  # Assuming this Indicador exists
+        organismo_id=1,  # Assuming this Organismo exists
+        usuario_id=1     # Assuming this Usuario exists
+    )
+    reporte_2 = Reportes(
+        fecha="2025-01-16",
+        valor=90,
+        activo=True,
+        indicador_id=2,  # Assuming this Indicador exists
+        organismo_id=2,  # Assuming this Organismo exists
+        usuario_id=2     # Assuming this Usuario exists
+    )
+    reporte_3 = Reportes(
+        fecha="2025-01-17",
+        valor=70,
+        activo=False,
+        indicador_id=3,  # Assuming this Indicador exists
+        organismo_id=1,  # Assuming this Organismo exists
+        usuario_id=3     # Assuming this Usuario exists
+    )
+
+    with Session(engine) as session:
+        session.add(reporte_1)
+        session.add(reporte_2)
+        session.add(reporte_3)
+
+        session.commit()
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
+    
