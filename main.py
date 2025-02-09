@@ -1,16 +1,26 @@
 from fastapi import FastAPI, HTTPException, status, APIRouter
+from contextlib import asynccontextmanager
 from models import (
-    reportes,
-    medidas,
-    usuarios,
-    organismos,
-    indicadores,
-    Reportes,
     Medidas,
     Usuarios,
     Organismos,
     Indicadores,
+    Reportes,
+    create_db_and_tables,
+    create_organismos,
+    create_usuarios,
+    create_medidas,
+    create_indicadores,
+    create_reportes
 )
+
+""" @asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the ML model
+    create_db_and_tables
+    yield
+    # Clean up the ML models and release the resources
+    # create_db_and_tables.clear() """
 
 app = FastAPI(
     title="Sistema de Monitoreo PPDA CQP",
@@ -23,8 +33,18 @@ app = FastAPI(
         "name": "Superintendencia del Medio Ambiente",
         "email": "grupo5@talentofuturo.cl",
     },
+    #lifespan=lifespan
 )
 
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    create_organismos()
+    create_usuarios(),
+    create_medidas(),
+    create_indicadores(),
+    create_reportes()
+    
 router = APIRouter()
 
 # CRUD REPORTES
