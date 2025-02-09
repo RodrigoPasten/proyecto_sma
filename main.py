@@ -1,12 +1,11 @@
 from fastapi import FastAPI, HTTPException, status, APIRouter
 from contextlib import asynccontextmanager
 from models import (
-    medidas,
-    usuarios,
-    organismos,
     Medidas,
     Usuarios,
     Organismos,
+    Indicadores,
+    Reportes,
     create_db_and_tables,
     create_organismos,
     create_usuarios,
@@ -50,7 +49,7 @@ router = APIRouter()
 
 # CRUD REPORTES
 
-""" @app.get("/reportes/{reporte_id}", response_model=Reportes, tags=["Reportes"])
+@app.get("/reportes/{reporte_id}", response_model=Reportes, tags=["Reportes"])
 async def obtener_reporte(reporte_id: int):
     reporte = next((r for r in reportes if r.id == reporte_id), None)
 
@@ -91,7 +90,7 @@ async def desactivar_reporte(reporte_id: int):
 
     reporte.activo = False
 
-    return f"Se ha eliminado el reporte {reporte_id}" """
+    return f"Se ha eliminado el reporte {reporte_id}"
 
 
 # CRUD MEDIDAS
@@ -238,7 +237,7 @@ async def desactivar_organismo(organismo_id: int):
 # CRUD INDICADORES
 
 
-""" @app.get("/indicadores/{indicador_id}", response_model=Indicadores)
+@app.get("/indicadores/{indicador_id}", response_model=Indicadores)
 async def obtener_indicador(indicador_id: int):
     indicador = next((r for r in indicadores if r.id == indicador_id), None)
 
@@ -281,4 +280,4 @@ async def desactivar_indicador(indicador_id: int):
 
     indicador.activo = False
 
-    return f"Se ha eliminado el indicador {indicador_id}" """
+    return f"Se ha eliminado el indicador {indicador_id}"
