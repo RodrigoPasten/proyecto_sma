@@ -35,8 +35,7 @@ app = FastAPI(
     contact={
         "name": "Superintendencia del Medio Ambiente",
         "email": "grupo5@talentofuturo.cl",
-    },
-    # lifespan=lifespan
+    }
 )
 
 
