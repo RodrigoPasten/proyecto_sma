@@ -28,14 +28,20 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Sistema de Monitoreo PPDA CQP",
     description="""
-    API para gestionar reportes de organismos responsables del Plan de Prevención y Descontaminación Atmosférica (PPDA).
+    API para gestionar reportes de organismos responsables del Plan de Prevención y Descontaminación Atmosférica (PPDA).  
     Permite registrar, consultar y visualizar los avances del plan.
     """,
     version="1.0.0",
+    terms_of_service="https://www.sma.gob.cl/terminos",  # URL de términos (opcional)
     contact={
         "name": "Superintendencia del Medio Ambiente",
         "email": "grupo5@talentofuturo.cl",
-    }
+        "url": "https://www.sma.gob.cl",  # Agregar un sitio web
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
 )
 
 
