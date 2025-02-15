@@ -53,14 +53,14 @@ class Reportes(SQLModel, table=True):
 
 # CREATE ENGINE TO CONNECT TO DB
 
-database_user = "postgres"
-database_password = "pgadmin"
-database_host = "localhost"  # or the IP address of your PostgreSQL server
-database_port = 5432         # Default PostgreSQL port
-database_name = "db_sma"
+# CREATE ENGINE TO CONNECT TO DB
+database_url = "sqlite:///database.db"  # Usar SQLite con un archivo local
+engine = create_engine(database_url, echo=True, connect_args={"check_same_thread": False})
 
-postgres_url = f"postgresql://{database_user}:{database_password}@{database_host}:{database_port}/{database_name}"
-engine = create_engine(postgres_url)
+def get_session():
+    with Session(engine) as session:
+        session.exec("PRAGMA foreign_keys=ON;")  # Activar claves foráneas en SQLite
+        yield session
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
