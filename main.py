@@ -44,12 +44,15 @@ app = FastAPI(
     },
     swagger_ui_parameters={
         "defaultModelsExpandDepth": -1,  # Oculta los modelos de la vista inicial
+        "theme": "dark",
         "defaultModelRendering": "example",  # Muestra ejemplos en lugar de esquemas JSON
         "displayRequestDuration": True,  # Muestra el tiempo de respuesta
         "docExpansion": "none",  # Mantiene los endpoints colapsados
         "filter": True,  # Agrega un cuadro de búsqueda en los endpoints
     },
 )
+from fastapi.openapi.docs import get_redoc_html
+
 
 
 
